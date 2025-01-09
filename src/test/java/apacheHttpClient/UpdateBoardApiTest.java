@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.testng.AssertJUnit.assertEquals;
+import static utility.TestUtil.BOARD_NAME;
 
 public class UpdateBoardApiTest extends ApacheHttpBaseTest {
 

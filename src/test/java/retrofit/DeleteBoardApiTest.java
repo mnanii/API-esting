@@ -2,8 +2,10 @@ package retrofit;
 
 import client.TrelloClient;
 import model.Board;
+import model.InvalidBoardResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -13,39 +15,50 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.io.IOException;
 
 import static org.testng.AssertJUnit.*;
-import static utility.TestUtil.KEY;
-import static utility.TestUtil.TOKEN;
+import static utility.TestUtil.*;
 
 public class DeleteBoardApiTest extends RetrofitBaseTest {
 
+    @BeforeTest
+    public void setUp() throws IOException {
+        initializeResources();
+        trelloClient = buildTrelloClient();
+    }
+
     @Test
-    public void deleteBoardTest () throws IOException {
-        Board board = createBoard("MyBoard9");
+    public void when_deleteBoard_then_BordNotFound () throws IOException {
+        Board board = createBoard(BOARD_NAME);
 
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.trello.com/")
-                .addConverterFactory(JacksonConverterFactory.create())
-                .client(httpClient.build())
-                .build();
-
-        TrelloClient trelloClient = retrofit.create(TrelloClient.class);
-
-        Call<Board> call = trelloClient.deleteBoard(board.getId(), KEY, TOKEN);
+        Call<Board> call = trelloClient.deleteBoard(board.getId(), getKey(), getToken());
         Response<Board> response = call.execute();
-        System.out.println(response);
 
         assertTrue(response.isSuccessful());
         assertEquals(200, response.code());
 
-        Call<Board> validatedCall = trelloClient.getBoardById(board.getId(), KEY, TOKEN);
+        Call<Board> validatedCall = trelloClient.getBoardById(board.getId(), getKey(), getToken());
         Response<Board> validateResponse = validatedCall.execute();
-        System.out.println(validateResponse);
         assertEquals(404, validateResponse.code());
 
     }
+
+    @Test
+    public void when_deleteBoardWithInvalidId_then_badRequest() throws IOException {
+        Call<Board> boardCall = trelloClient.deleteBoard("mmm", getKey(), getToken());
+        Response<Board> response = boardCall.execute();
+
+        assertEquals("invalid id", response.errorBody().string());
+        assertEquals(400, response.code());
+    }
+
+    @Test
+    public void when_deleteBoardWithInvalidKey_then_Unauthorized() throws IOException {
+        Board board = createBoard(BOARD_NAME);
+
+        Call<Board> boardCall = trelloClient.deleteBoard(board.getId(), "124", getToken());
+        Response<Board> response = boardCall.execute();
+
+        assertEquals(401, response.code());
+        assertEquals("invalid key", response.errorBody().string());
+    }
+
 }

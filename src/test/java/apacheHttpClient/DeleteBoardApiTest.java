@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.testng.AssertJUnit.assertEquals;
+import static utility.TestUtil.BOARD_NAME;
 
 public class DeleteBoardApiTest extends ApacheHttpBaseTest {
 
@@ -45,7 +46,7 @@ public class DeleteBoardApiTest extends ApacheHttpBaseTest {
     }
 
     @Test
-    public void when_createBoardWithInvalidId_then_badRequest() throws URISyntaxException, IOException {
+    public void when_deleteBoardWithInvalidId_then_badRequest() throws URISyntaxException, IOException {
         URI uri = baseURI()
                 .setPath("1/boards/" + "123")
                 .build();
@@ -68,7 +69,7 @@ public class DeleteBoardApiTest extends ApacheHttpBaseTest {
     }
 
     @Test
-    public void when_createBoardWithoutKey_then_Unauthorized() throws URISyntaxException, IOException {
+    public void when_deleteBoardWithoutKey_then_Unauthorized() throws URISyntaxException, IOException {
         URI uri = baseURI()
                 .setPath("1/boards/" + boardId)
                 .setParameter("key", null)
@@ -80,7 +81,7 @@ public class DeleteBoardApiTest extends ApacheHttpBaseTest {
     }
 
     @Test
-    public void when_createBoardWithInvalidToken_then_Unauthorized() throws URISyntaxException, IOException {
+    public void when_deleteBoardWithInvalidToken_then_Unauthorized() throws URISyntaxException, IOException {
         URI uri = baseURI()
                 .setPath("1/boards/" + boardId)
                 .setParameter("token", "invalidToken")
@@ -92,7 +93,7 @@ public class DeleteBoardApiTest extends ApacheHttpBaseTest {
     }
 
     @Test
-    public void when_createBoardWithoutToken_then_Unauthorized() throws URISyntaxException, IOException {
+    public void when_deleteBoardWithoutToken_then_Unauthorized() throws URISyntaxException, IOException {
         URI uri = baseURI()
                 .setPath("1/boards/" + boardId)
                 .setParameter("token", null)

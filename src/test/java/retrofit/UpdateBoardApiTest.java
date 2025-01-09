@@ -4,6 +4,7 @@ import client.TrelloClient;
 import model.Board;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -15,38 +16,52 @@ import java.io.IOException;
 
 import static org.testng.AssertJUnit.*;
 import static org.testng.AssertJUnit.assertNotNull;
-import static utility.TestUtil.KEY;
-import static utility.TestUtil.TOKEN;
+import static utility.TestUtil.*;
 
 public class UpdateBoardApiTest extends RetrofitBaseTest {
+
+    @BeforeTest
+    public void setUp() throws IOException {
+        initializeResources();
+        trelloClient = buildTrelloClient();
+    }
+
     @Test
-    public void updateBoardTest() throws IOException {
+    public void when_updateBoardWithValidName_then_boardUpdated() throws IOException {
 
-        Board board = createBoard("MyBoard8");
+        Board board = createBoard(BOARD_NAME);
+        BoardUpdateRequest updateBoardRequest = new BoardUpdateRequest("test");
 
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.trello.com/")
-                .addConverterFactory(JacksonConverterFactory.create())
-                .client(httpClient.build())
-                .build();
-
-        TrelloClient trelloClient = retrofit.create(TrelloClient.class);
-
-        BoardUpdateRequest updateBoardRequest = new BoardUpdateRequest("test9");
-
-        Call<Board> call = trelloClient.updateBoard(board.getId(), KEY, TOKEN, updateBoardRequest);
+        Call<Board> call = trelloClient.updateBoard(board.getId(), getKey(), getToken(), updateBoardRequest);
         Response<Board> response = call.execute();
-
-        System.out.println(response);
+        boardId = response.body().getId();
 
         assertTrue(response.isSuccessful());
         assertEquals(200, response.code());
         assertNotNull(response.body());
         assertEquals(updateBoardRequest.getDesc(), response.body().getDesc());
+    }
+
+    @Test
+    public void when_updateBoardWithInvalidId_then_badRequest() throws IOException {
+        BoardUpdateRequest updateBoardRequest = new BoardUpdateRequest("test");
+
+        Call<Board> boardCall = trelloClient.updateBoard("123", getKey(), getToken(), updateBoardRequest);
+        Response<Board> response = boardCall.execute();
+
+        assertEquals("invalid id", response.errorBody().string());
+        assertEquals(400, response.code());
+    }
+
+    @Test
+    public void when_getBoardWithInvalidKey_then_Unauthorized() throws IOException {
+        Board board = createBoard(BOARD_NAME);
+        BoardUpdateRequest updateBoardRequest = new BoardUpdateRequest("test");
+
+        Call<Board> boardCall = trelloClient.updateBoard(board.getId(), "124", getToken(), updateBoardRequest);
+        Response<Board> response = boardCall.execute();
+
+        assertEquals(401, response.code());
+        assertEquals("invalid key", response.errorBody().string());
     }
 }

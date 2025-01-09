@@ -44,8 +44,8 @@ public class CreateBoardApiTest extends ApacheHttpBaseTest{
     }
 
     @Test
-    public void when_sendRequestWithInvalidName_then_badRequest() throws URISyntaxException, IOException {
-        URI uri = baseURI().addParameter("name", "")
+    public void when_createBoardWithInvalidName_then_badRequest() throws URISyntaxException, IOException {
+        URI uri = baseURI().addParameter("name", null)
                 .build();
         HttpPost postRequest = new HttpPost(uri);
         Response<InvalidBoardResponse> response = sendRequest(postRequest, InvalidBoardResponse.class);

@@ -15,6 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static utility.TestUtil.BOARD_NAME;
 
 public class GetBoardApiTest extends ApacheHttpBaseTest {
 

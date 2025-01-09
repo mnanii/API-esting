@@ -24,7 +24,6 @@ import java.util.Properties;
 
 
 abstract class ApacheHttpBaseTest {
-    protected static final String BOARD_NAME = "MyBoard10";
     protected String boardId;
     protected final ObjectMapper objectMapper = new ObjectMapper();
     protected Properties properties;
